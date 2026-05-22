@@ -45,8 +45,14 @@ jobs:
       github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.full_name == github.repository
     uses: felddy/reusable-workflows/.github/workflows/container-build.yml@76486c28caa391f5f9db4941fc555a20a6e084c8  # tag=v4.2.0
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+      security-events: write
     with:
-      image_name: ${{ needs.config.outputs.image_name }}
+      image-name: ${{ needs.config.outputs.image_name }}
       platforms: ${{ needs.config.outputs.platforms }}
 
   test:
@@ -60,8 +66,8 @@ jobs:
       contents: read
       packages: read
     with:
-      image_name: ${{ needs.config.outputs.image_name }}
-      test_platforms: ${{ needs.config.outputs.test_platforms }}
+      image-name: ${{ needs.config.outputs.image_name }}
+      platforms: ${{ needs.config.outputs.test_platforms }}
 
   publish-manifest:
     needs: [config, build, test]
@@ -76,5 +82,5 @@ jobs:
       id-token: write
       attestations: write
     with:
-      image_name: ${{ needs.config.outputs.image_name }}
+      image-name: ${{ needs.config.outputs.image_name }}
       platforms: ${{ needs.config.outputs.platforms }}
