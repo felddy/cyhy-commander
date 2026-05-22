@@ -83,22 +83,45 @@ jobs:
       image-name: ${{ needs.config.outputs.image_name }}
       platforms: ${{ needs.config.outputs.platforms }}
 
-  test:
+  container-test:
     needs:
       - config
       - build
     if: |
       github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.full_name == github.repository
-    # yamllint disable-line rule:line-length
-    uses: felddy/reusable-workflows/.github/workflows/container-test.yml@76486c28caa391f5f9db4941fc555a20a6e084c8  # tag=v4.2.0
+    runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
       packages: read
-    with:
-      image-name: ${{ needs.config.outputs.image_name }}
-      platforms: ${{ needs.config.outputs.test_platforms }}
+    strategy:
+      matrix:
+        platform: ${{ fromJSON(needs.config.outputs.test_platforms) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Pull built image
+        run: |
+          IMAGE="ghcr.io/${{ needs.config.outputs.image_name }}"
+          DIGEST="${{ needs.build.outputs.digest }}"
+          docker pull "${IMAGE}@${DIGEST}" --platform ${{ matrix.platform }}
+          docker tag "${IMAGE}@${DIGEST}" test-image:latest
+      - name: Install container-structure-test
+        run: |
+          curl -LO https://github.com/GoogleContainerTools/container-structure-test/releases/latest/download/container-structure-test-linux-amd64
+          chmod +x container-structure-test-linux-amd64
+          sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+      - name: Run container structure tests
+        run: |
+          container-structure-test test \
+            --image test-image:latest \
+            --config tests/container-structure-test.yaml
 
   publish-manifest:
     needs:
