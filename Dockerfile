@@ -58,8 +58,9 @@ RUN groupadd --gid ${CISA_GID} --system ${CISA_USER} \
     && mkdir -p /home/${CISA_USER} \
     && chown ${CISA_UID}:${CISA_GID} /home/${CISA_USER}
 
-# Install pinned system packages and clean apt lists in a single RUN
+# Install pinned system packages, apply security updates, and clean apt lists
 RUN apt-get update \
+    && apt-get upgrade --no-install-recommends -y \
     && apt-get install --no-install-recommends --no-install-suggests -y \
        openssh-client=1:10.0p1-7+deb13u4 \
        rsync=3.4.1+ds1-5+deb13u2 \
