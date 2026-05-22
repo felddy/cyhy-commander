@@ -110,9 +110,10 @@ jobs:
       - name: Pull built image
         run: |
           IMAGE="ghcr.io/${{ needs.config.outputs.image_name }}"
-          DIGEST="${{ needs.build.outputs.digest }}"
-          docker pull "${IMAGE}@${DIGEST}" --platform ${{ matrix.platform }}
-          docker tag "${IMAGE}@${DIGEST}" test-image:latest
+          TAG="${{ needs.build.outputs.image-version }}"
+          docker pull "${IMAGE}:${TAG}" \
+            --platform ${{ matrix.platform }}
+          docker tag "${IMAGE}:${TAG}" test-image:latest
       - name: Install container-structure-test
         run: |
           CST_BASE="https://github.com/GoogleContainerTools"
