@@ -29,6 +29,8 @@ def check(endpoint: str) -> int:
     """GET http://localhost:{port}/{endpoint}, return 0 on 200, 1 otherwise."""
     url = f"http://localhost:{METRICS_PORT}{endpoint}"
     try:
+        # URL is always http://localhost with a controlled port;
+        # no user input reaches the scheme or host.
         response = urllib.request.urlopen(url, timeout=TIMEOUT)  # nosec B310
         if response.status == 200:
             return 0

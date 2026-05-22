@@ -396,6 +396,8 @@ def start_server() -> None:
     _bearer_token = get_bearer_token()
 
     try:
+        # Bind to all interfaces so Kubernetes probes and Prometheus
+        # can reach the metrics server via the pod network.
         _server = make_server(
             "0.0.0.0",  # nosec: B104
             port,
