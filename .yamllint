@@ -60,4 +60,3 @@ rules:
     quote-type: double
     # Only require quotes when they are necessary for proper processing
     required: only-when-needed
-
