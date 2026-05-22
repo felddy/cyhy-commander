@@ -158,7 +158,7 @@ def get_liveness_threshold() -> float:
         return DEFAULT_LIVENESS_THRESHOLD
     try:
         value = float(raw)
-    except (ValueError, OverflowError):
+    except ValueError, OverflowError:
         logger.warning(
             "Invalid CYHY_LIVENESS_THRESHOLD_SECONDS value %r "
             "(not numeric); using default %s",
@@ -252,8 +252,6 @@ def _check_liveness() -> tuple[int, str]:
       - (now - last_cycle_timestamp) < liveness_threshold
     Returns 503 otherwise.
     """
-    global _first_cycle_completed, _liveness_threshold
-
     if not _first_cycle_completed:
         return (200, "ok")
 
@@ -272,8 +270,6 @@ def _check_readiness() -> tuple[int, str]:
       - (now - last_db_success_timestamp) < readiness_threshold
     Returns 503 otherwise (including before first DB op).
     """
-    global _readiness_threshold
-
     last_db = last_db_success_timestamp_seconds._value.get()
     if last_db == 0:
         return (503, "database connection stale")
@@ -290,8 +286,6 @@ def _check_startup() -> tuple[int, str]:
     Returns 200 if first_cycle_completed flag is True.
     Returns 503 otherwise.
     """
-    global _first_cycle_completed
-
     if _first_cycle_completed:
         return (200, "ok")
     return (503, "first cycle not completed")
@@ -308,8 +302,6 @@ def _authenticate(environ: dict[str, Any]) -> bool:
     Returns True if no token is configured or if the provided token
     matches the configured token. Returns False otherwise.
     """
-    global _bearer_token
-
     if _bearer_token is None:
         return True
 
@@ -346,19 +338,22 @@ def health_app(environ: dict[str, Any], start_response: Any) -> list[bytes]:
 
     if path == "/livez":
         status_code, body = _check_liveness()
-        status_str = f"{status_code} {'OK' if status_code == 200 else 'Service Unavailable'}"
+        reason = "OK" if status_code == 200 else "Service Unavailable"
+        status_str = f"{status_code} {reason}"
         start_response(status_str, [("Content-Type", "text/plain")])
         return [body.encode("utf-8")]
 
     if path == "/readyz":
         status_code, body = _check_readiness()
-        status_str = f"{status_code} {'OK' if status_code == 200 else 'Service Unavailable'}"
+        reason = "OK" if status_code == 200 else "Service Unavailable"
+        status_str = f"{status_code} {reason}"
         start_response(status_str, [("Content-Type", "text/plain")])
         return [body.encode("utf-8")]
 
     if path == "/startupz":
         status_code, body = _check_startup()
-        status_str = f"{status_code} {'OK' if status_code == 200 else 'Service Unavailable'}"
+        reason = "OK" if status_code == 200 else "Service Unavailable"
+        status_str = f"{status_code} {reason}"
         start_response(status_str, [("Content-Type", "text/plain")])
         return [body.encode("utf-8")]
 
@@ -391,7 +386,8 @@ def start_server() -> None:
     error and returns (degraded mode). Sets _server and _server_thread
     module globals.
     """
-    global _server, _server_thread, _bearer_token, _liveness_threshold, _readiness_threshold
+    global _server, _server_thread
+    global _bearer_token, _liveness_threshold, _readiness_threshold
 
     # Load configuration from environment
     port = get_metrics_port()
@@ -400,7 +396,12 @@ def start_server() -> None:
     _bearer_token = get_bearer_token()
 
     try:
-        _server = make_server("0.0.0.0", port, health_app, server_class=_ThreadingWSGIServer)
+        _server = make_server(
+            "0.0.0.0",  # nosec: B104
+            port,
+            health_app,
+            server_class=_ThreadingWSGIServer,
+        )
     except OSError as exc:
         logger.error(
             "Failed to bind metrics server to 0.0.0.0:%d: %s. "
@@ -423,7 +424,9 @@ def start_server() -> None:
                 exc_info=True,
             )
 
-    _server_thread = threading.Thread(target=_serve, name="metrics-server", daemon=True)
+    _server_thread = threading.Thread(
+        target=_serve, name="metrics-server", daemon=True
+    )
     _server_thread.start()
     logger.info("Metrics server started on 0.0.0.0:%d", port)
 
@@ -441,7 +444,9 @@ def shutdown_server() -> None:
     if _server_thread is not None:
         _server_thread.join(timeout=5.0)
         if _server_thread.is_alive():
-            logger.warning("Metrics server thread did not stop within 5 seconds")
+            logger.warning(
+                "Metrics server thread did not stop within 5 seconds"
+            )
 
     _server = None
     _server_thread = None
@@ -480,7 +485,9 @@ def inc_jobs_pushed(stage: str, ip_count: int = 1) -> None:
     ips_pushed_total.labels(stage=stage).inc(ip_count)
 
 
-def inc_jobs_pulled(stage: str, ip_count: int = 1, success: bool = True) -> None:
+def inc_jobs_pulled(
+    stage: str, ip_count: int = 1, success: bool = True
+) -> None:
     """Increment jobs_pulled_total and ips_pulled_total for the given stage/status."""
     status = "success" if success else "failure"
     jobs_pulled_total.labels(stage=stage).inc()
@@ -499,4 +506,6 @@ def inc_host_errors(host: str) -> None:
 
 def set_scanner_status(host: str, workgroup: str, up: bool) -> None:
     """Set scanner_connection_status gauge to 1 (up) or 0 (down)."""
-    scanner_connection_status.labels(host=host, workgroup=workgroup).set(1 if up else 0)
+    scanner_connection_status.labels(host=host, workgroup=workgroup).set(
+        1 if up else 0
+    )

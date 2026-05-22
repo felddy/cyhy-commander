@@ -31,19 +31,25 @@ permissions:
 
 jobs:
   diagnostics:
+    # yamllint disable-line rule:line-length
     uses: felddy/reusable-workflows/.github/workflows/diagnostics.yml@76486c28caa391f5f9db4941fc555a20a6e084c8  # tag=v4.2.0
 
   lint:
+    # yamllint disable-line rule:line-length
     uses: felddy/reusable-workflows/.github/workflows/common-lint.yml@76486c28caa391f5f9db4941fc555a20a6e084c8  # tag=v4.2.0
 
   config:
     uses: ./.github/workflows/_config.yml
 
   build:
-    needs: [config, diagnostics, lint]
+    needs:
+      - config
+      - diagnostics
+      - lint
     if: |
       github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.full_name == github.repository
+    # yamllint disable-line rule:line-length
     uses: felddy/reusable-workflows/.github/workflows/container-build.yml@76486c28caa391f5f9db4941fc555a20a6e084c8  # tag=v4.2.0
     permissions:
       contents: read
@@ -56,10 +62,13 @@ jobs:
       platforms: ${{ needs.config.outputs.platforms }}
 
   test:
-    needs: [config, build]
+    needs:
+      - config
+      - build
     if: |
       github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.full_name == github.repository
+    # yamllint disable-line rule:line-length
     uses: felddy/reusable-workflows/.github/workflows/container-test.yml@76486c28caa391f5f9db4941fc555a20a6e084c8  # tag=v4.2.0
     permissions:
       actions: read
@@ -70,10 +79,14 @@ jobs:
       platforms: ${{ needs.config.outputs.test_platforms }}
 
   publish-manifest:
-    needs: [config, build, test]
+    needs:
+      - config
+      - build
+      - test
     if: |
       github.event_name != 'pull_request' ||
       github.event.pull_request.head.repo.full_name == github.repository
+    # yamllint disable-line rule:line-length
     uses: felddy/reusable-workflows/.github/workflows/container-publish-manifest.yml@76486c28caa391f5f9db4941fc555a20a6e084c8  # tag=v4.2.0
     permissions:
       actions: read

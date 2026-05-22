@@ -41,7 +41,9 @@ workgroup_strategy = st.text(
     host=host_strategy,
     workgroup=workgroup_strategy,
 )
-def test_set_scanner_status_true_sets_gauge_to_1(host: str, workgroup: str) -> None:
+def test_set_scanner_status_true_sets_gauge_to_1(
+    host: str, workgroup: str
+) -> None:
     """Feature: observability-and-probes, Property 3: Scanner connection gauge reflects last operation outcome.
 
     For any host and workgroup, set_scanner_status(host, workgroup, True)
@@ -51,7 +53,12 @@ def test_set_scanner_status_true_sets_gauge_to_1(host: str, workgroup: str) -> N
 
     metrics.set_scanner_status(host, workgroup, True)
 
-    assert metrics.scanner_connection_status.labels(host=host, workgroup=workgroup)._value.get() == 1
+    assert (
+        metrics.scanner_connection_status.labels(
+            host=host, workgroup=workgroup
+        )._value.get()
+        == 1
+    )
 
 
 @settings(max_examples=100)
@@ -59,7 +66,9 @@ def test_set_scanner_status_true_sets_gauge_to_1(host: str, workgroup: str) -> N
     host=host_strategy,
     workgroup=workgroup_strategy,
 )
-def test_set_scanner_status_false_sets_gauge_to_0(host: str, workgroup: str) -> None:
+def test_set_scanner_status_false_sets_gauge_to_0(
+    host: str, workgroup: str
+) -> None:
     """Feature: observability-and-probes, Property 3: Scanner connection gauge reflects last operation outcome.
 
     For any host and workgroup, set_scanner_status(host, workgroup, False)
@@ -69,7 +78,12 @@ def test_set_scanner_status_false_sets_gauge_to_0(host: str, workgroup: str) -> 
 
     metrics.set_scanner_status(host, workgroup, False)
 
-    assert metrics.scanner_connection_status.labels(host=host, workgroup=workgroup)._value.get() == 0
+    assert (
+        metrics.scanner_connection_status.labels(
+            host=host, workgroup=workgroup
+        )._value.get()
+        == 0
+    )
 
 
 @settings(max_examples=100)
@@ -92,4 +106,9 @@ def test_gauge_reflects_most_recent_call(
         metrics.set_scanner_status(host, workgroup, status)
 
     expected = 1 if statuses[-1] else 0
-    assert metrics.scanner_connection_status.labels(host=host, workgroup=workgroup)._value.get() == expected
+    assert (
+        metrics.scanner_connection_status.labels(
+            host=host, workgroup=workgroup
+        )._value.get()
+        == expected
+    )

@@ -60,6 +60,7 @@ repos:
       - id: yamllint
         args:
           - --strict
+        exclude: tests/container-structure-test.yaml
 
   # GitHub Actions hooks
   - repo: https://github.com/python-jsonschema/check-jsonschema
@@ -88,7 +89,11 @@ repos:
           # Skip subprocess and tmp directory checks since tests use
           # mocked subprocess and hardcoded paths safely.
           # Skip xml.sax checks since tests parse trusted test data.
-          - --skip=B101,B108,B317,B404
+          # Skip urllib.urlopen, hardcoded bind, hardcoded passwords,
+          # and subprocess checks since tests use localhost URLs,
+          # bind to 0.0.0.0 for local testing, use test tokens, and
+          # invoke subprocesses with controlled arguments.
+          - --skip=B101,B104,B105,B108,B310,B317,B404,B603
   # Run bandit on everything except the "tests" tree
   - repo: https://github.com/PyCQA/bandit
     rev: 1.9.4
@@ -167,6 +172,12 @@ repos:
           - CVE-2026-44431
           - --ignore-vuln
           - CVE-2026-44432
+          # idna 3.13 has a known vulnerability. Our code does not
+          # exercise the affected code path (IDNA 2008 processing).
+          #
+          # TODO: Remove when idna >= 3.15 is available.
+          - --ignore-vuln
+          - CVE-2026-45409
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.21.2
     hooks:

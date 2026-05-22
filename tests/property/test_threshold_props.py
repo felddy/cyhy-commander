@@ -25,7 +25,6 @@ from cyhy_commander.metrics import (
     get_readiness_threshold,
 )
 
-
 # ---------------------------------------------------------------------------
 # Strategies
 # ---------------------------------------------------------------------------
@@ -41,9 +40,7 @@ valid_readiness_values = st.integers(min_value=1, max_value=3600)
 # Strategy for arbitrary strings that may or may not be valid.
 # Exclude null bytes since os.environ cannot contain them.
 arbitrary_strings = st.text(
-    alphabet=st.characters(
-        codec="ascii", exclude_characters="\x00"
-    ),
+    alphabet=st.characters(codec="ascii", exclude_characters="\x00"),
     min_size=0,
     max_size=50,
 )
@@ -66,13 +63,11 @@ def test_liveness_threshold_valid_positive_numeric_is_used(
     **Validates: Requirements 4.4, 4.5**
     """
     env_value = str(value)
-    with patch.dict(
-        os.environ, {"CYHY_LIVENESS_THRESHOLD_SECONDS": env_value}
-    ):
+    with patch.dict(os.environ, {"CYHY_LIVENESS_THRESHOLD_SECONDS": env_value}):
         result = get_liveness_threshold()
-    assert result == float(env_value), (
-        f"Expected {float(env_value)}, got {result} for input {env_value!r}"
-    )
+    assert result == float(
+        env_value
+    ), f"Expected {float(env_value)}, got {result} for input {env_value!r}"
 
 
 # ---------------------------------------------------------------------------
@@ -93,16 +88,14 @@ def test_liveness_threshold_invalid_returns_default(raw: str) -> None:
     try:
         parsed = float(raw)
         is_valid = parsed > 0
-    except (ValueError, OverflowError):
+    except ValueError, OverflowError:
         is_valid = False
 
     # Skip values that are actually valid - we only test invalid ones here
     if is_valid:
         return
 
-    with patch.dict(
-        os.environ, {"CYHY_LIVENESS_THRESHOLD_SECONDS": raw}
-    ):
+    with patch.dict(os.environ, {"CYHY_LIVENESS_THRESHOLD_SECONDS": raw}):
         result = get_liveness_threshold()
     assert result == DEFAULT_LIVENESS_THRESHOLD, (
         f"Expected default {DEFAULT_LIVENESS_THRESHOLD}, got {result} "
@@ -150,9 +143,9 @@ def test_readiness_threshold_valid_integer_in_range_is_used(
         os.environ, {"CYHY_READINESS_THRESHOLD_SECONDS": env_value}
     ):
         result = get_readiness_threshold()
-    assert result == float(value), (
-        f"Expected {float(value)}, got {result} for input {env_value!r}"
-    )
+    assert result == float(
+        value
+    ), f"Expected {float(value)}, got {result} for input {env_value!r}"
 
 
 # ---------------------------------------------------------------------------
@@ -173,16 +166,14 @@ def test_readiness_threshold_invalid_returns_default(raw: str) -> None:
     try:
         parsed = int(raw)
         is_valid = 1 <= parsed <= 3600
-    except (ValueError, OverflowError):
+    except ValueError, OverflowError:
         is_valid = False
 
     # Skip values that are actually valid - we only test invalid ones here
     if is_valid:
         return
 
-    with patch.dict(
-        os.environ, {"CYHY_READINESS_THRESHOLD_SECONDS": raw}
-    ):
+    with patch.dict(os.environ, {"CYHY_READINESS_THRESHOLD_SECONDS": raw}):
         result = get_readiness_threshold()
     assert result == DEFAULT_READINESS_THRESHOLD, (
         f"Expected default {DEFAULT_READINESS_THRESHOLD}, got {result} "

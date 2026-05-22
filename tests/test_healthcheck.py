@@ -15,7 +15,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 import pytest
-from hypothesis import given, settings, strategies as st
+from hypothesis import given, settings
+from hypothesis import strategies as st
 
 # Path to the healthcheck script
 SCRIPT_PATH = Path(__file__).parent.parent / "scripts" / "healthcheck.py"
@@ -82,7 +83,9 @@ def unhealthy_server():
     server.shutdown()
 
 
-def _run_healthcheck(subcommand: str | None, port: int, timeout: float = 10.0) -> subprocess.CompletedProcess:
+def _run_healthcheck(
+    subcommand: str | None, port: int, timeout: float = 10.0
+) -> subprocess.CompletedProcess:
     """Run the healthcheck script with the given subcommand and port."""
     cmd = [sys.executable, str(SCRIPT_PATH)]
     if subcommand is not None:
@@ -218,10 +221,14 @@ class TestInvalidSubcommandProperty:
     @settings(max_examples=100)
     @given(
         subcommand=st.text(
-            alphabet=st.characters(blacklist_categories=("Cs",), blacklist_characters="\x00"),
+            alphabet=st.characters(
+                blacklist_categories=("Cs",), blacklist_characters="\x00"
+            ),
         ).filter(lambda s: s not in ("liveness", "readiness")),
     )
-    def test_invalid_subcommand_produces_usage_error(self, subcommand: str) -> None:
+    def test_invalid_subcommand_produces_usage_error(
+        self, subcommand: str
+    ) -> None:
         """Feature: observability-and-probes, Property 11: Invalid healthcheck subcommand produces usage error.
 
         For any string argument not in {liveness, readiness}, the script exits
@@ -231,12 +238,12 @@ class TestInvalidSubcommandProperty:
         """
         port = _find_free_port()
         result = _run_healthcheck(subcommand, port)
-        assert result.returncode == 2, (
-            f"Expected exit code 2 for invalid subcommand {subcommand!r}, got {result.returncode}"
-        )
-        assert "usage" in result.stderr.lower(), (
-            f"Expected usage message in stderr for subcommand {subcommand!r}, got: {result.stderr!r}"
-        )
+        assert (
+            result.returncode == 2
+        ), f"Expected exit code 2 for invalid subcommand {subcommand!r}, got {result.returncode}"
+        assert (
+            "usage" in result.stderr.lower()
+        ), f"Expected usage message in stderr for subcommand {subcommand!r}, got: {result.stderr!r}"
 
     def test_no_argument_produces_usage_error(self) -> None:
         """Feature: observability-and-probes, Property 11: Invalid healthcheck subcommand produces usage error.
@@ -247,9 +254,9 @@ class TestInvalidSubcommandProperty:
         """
         port = _find_free_port()
         result = _run_healthcheck(None, port)
-        assert result.returncode == 2, (
-            f"Expected exit code 2 for no subcommand, got {result.returncode}"
-        )
-        assert "usage" in result.stderr.lower(), (
-            f"Expected usage message in stderr for no subcommand, got: {result.stderr!r}"
-        )
+        assert (
+            result.returncode == 2
+        ), f"Expected exit code 2 for no subcommand, got {result.returncode}"
+        assert (
+            "usage" in result.stderr.lower()
+        ), f"Expected usage message in stderr for no subcommand, got: {result.stderr!r}"

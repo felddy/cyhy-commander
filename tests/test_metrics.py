@@ -7,7 +7,6 @@ Requirements: 2.9, 2.10, 3.2, 3.5, 3.8, 8.1, 8.2, 11.1, 11.3, 11.4
 """
 
 import socket
-import threading
 import time
 import urllib.error
 import urllib.request
@@ -65,7 +64,7 @@ def _port_is_open(port: int, timeout: float = 1.0) -> bool:
     try:
         with socket.create_connection(("127.0.0.1", port), timeout=timeout):
             return True
-    except (ConnectionRefusedError, OSError, TimeoutError):
+    except OSError:
         return False
 
 
@@ -86,9 +85,9 @@ class TestStartupSequencing:
         # Give the thread a moment to start accepting
         time.sleep(0.1)
 
-        assert _port_is_open(port), (
-            f"Metrics server should be accepting connections on port {port}"
-        )
+        assert _port_is_open(
+            port
+        ), f"Metrics server should be accepting connections on port {port}"
 
     def test_server_responds_to_http_after_start(self):
         """Metrics server responds to HTTP requests immediately after start_server()."""
@@ -310,9 +309,9 @@ class TestGracefulShutdown:
         metrics.shutdown_server()
         elapsed = time.monotonic() - start
 
-        assert elapsed < 5.0, (
-            f"shutdown_server() took {elapsed:.2f}s, exceeding 5s limit"
-        )
+        assert (
+            elapsed < 5.0
+        ), f"shutdown_server() took {elapsed:.2f}s, exceeding 5s limit"
 
     def test_is_server_running_false_after_shutdown(self):
         """is_server_running() returns False after shutdown."""
@@ -376,6 +375,6 @@ class TestServerBinding:
         elapsed = time.monotonic() - start
 
         # start_server should return nearly instantly (< 1 second)
-        assert elapsed < 1.0, (
-            f"start_server() took {elapsed:.2f}s — it should not block"
-        )
+        assert (
+            elapsed < 1.0
+        ), f"start_server() took {elapsed:.2f}s — it should not block"

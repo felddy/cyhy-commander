@@ -28,7 +28,9 @@ def reset_prometheus_registry():
     stage=st.sampled_from(["NETSCAN1", "NETSCAN2", "PORTSCAN", "VULNSCAN"]),
     ip_count=st.integers(min_value=1, max_value=1000),
 )
-def test_ips_pushed_total_increments_by_ip_count(stage: str, ip_count: int) -> None:
+def test_ips_pushed_total_increments_by_ip_count(
+    stage: str, ip_count: int
+) -> None:
     """Feature: observability-and-probes, Property 2: IP counter metrics increment by job IP count."""
     metrics.ips_pushed_total._metrics.clear()
 
@@ -42,14 +44,19 @@ def test_ips_pushed_total_increments_by_ip_count(stage: str, ip_count: int) -> N
     stage=st.sampled_from(["NETSCAN1", "NETSCAN2", "PORTSCAN", "VULNSCAN"]),
     ip_count=st.integers(min_value=1, max_value=1000),
 )
-def test_ips_pulled_total_increments_by_ip_count_on_success(stage: str, ip_count: int) -> None:
+def test_ips_pulled_total_increments_by_ip_count_on_success(
+    stage: str, ip_count: int
+) -> None:
     """Feature: observability-and-probes, Property 2: IP counter metrics increment by job IP count."""
     metrics.ips_pulled_total._metrics.clear()
 
     metrics.inc_jobs_pulled(stage, ip_count, success=True)
 
     assert (
-        metrics.ips_pulled_total.labels(stage=stage, status="success")._value.get() == ip_count
+        metrics.ips_pulled_total.labels(
+            stage=stage, status="success"
+        )._value.get()
+        == ip_count
     )
 
 
@@ -58,12 +65,17 @@ def test_ips_pulled_total_increments_by_ip_count_on_success(stage: str, ip_count
     stage=st.sampled_from(["NETSCAN1", "NETSCAN2", "PORTSCAN", "VULNSCAN"]),
     ip_count=st.integers(min_value=1, max_value=1000),
 )
-def test_ips_pulled_total_increments_by_ip_count_on_failure(stage: str, ip_count: int) -> None:
+def test_ips_pulled_total_increments_by_ip_count_on_failure(
+    stage: str, ip_count: int
+) -> None:
     """Feature: observability-and-probes, Property 2: IP counter metrics increment by job IP count."""
     metrics.ips_pulled_total._metrics.clear()
 
     metrics.inc_jobs_pulled(stage, ip_count, success=False)
 
     assert (
-        metrics.ips_pulled_total.labels(stage=stage, status="failure")._value.get() == ip_count
+        metrics.ips_pulled_total.labels(
+            stage=stage, status="failure"
+        )._value.get()
+        == ip_count
     )

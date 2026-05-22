@@ -9,7 +9,6 @@ any other status or connection failure.
 """
 
 import importlib.util
-import socket
 import urllib.error
 from io import BytesIO
 from pathlib import Path
@@ -19,7 +18,9 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 # Import the healthcheck module directly from the scripts directory
-_SCRIPT_PATH = Path(__file__).parent.parent.parent / "scripts" / "healthcheck.py"
+_SCRIPT_PATH = (
+    Path(__file__).parent.parent.parent / "scripts" / "healthcheck.py"
+)
 _spec = importlib.util.spec_from_file_location("healthcheck", _SCRIPT_PATH)
 _healthcheck = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_healthcheck)
@@ -57,9 +58,9 @@ def test_exit_1_on_non_200_status(status_code: int) -> None:
     with patch("urllib.request.urlopen", side_effect=error):
         with patch.object(_healthcheck, "METRICS_PORT", 9090):
             exit_code = _healthcheck.check("/livez")
-    assert exit_code == 1, (
-        f"Expected exit 1 for HTTP {status_code}, got {exit_code}"
-    )
+    assert (
+        exit_code == 1
+    ), f"Expected exit 1 for HTTP {status_code}, got {exit_code}"
 
 
 @settings(max_examples=100)
@@ -73,9 +74,9 @@ def test_exit_0_on_http_200(status_code: int) -> None:
     with patch("urllib.request.urlopen", return_value=response):
         with patch.object(_healthcheck, "METRICS_PORT", 9090):
             exit_code = _healthcheck.check("/livez")
-    assert exit_code == 0, (
-        f"Expected exit 0 for HTTP {status_code}, got {exit_code}"
-    )
+    assert (
+        exit_code == 0
+    ), f"Expected exit 0 for HTTP {status_code}, got {exit_code}"
 
 
 @settings(max_examples=100)
@@ -117,9 +118,9 @@ def test_exit_0_for_both_endpoints_on_200(endpoint: str) -> None:
     with patch("urllib.request.urlopen", return_value=response):
         with patch.object(_healthcheck, "METRICS_PORT", 9090):
             exit_code = _healthcheck.check(endpoint)
-    assert exit_code == 0, (
-        f"Expected exit 0 for HTTP 200 on {endpoint}, got {exit_code}"
-    )
+    assert (
+        exit_code == 0
+    ), f"Expected exit 0 for HTTP 200 on {endpoint}, got {exit_code}"
 
 
 def test_exit_1_on_connection_refused() -> None:
@@ -133,9 +134,9 @@ def test_exit_1_on_connection_refused() -> None:
     with patch("urllib.request.urlopen", side_effect=error):
         with patch.object(_healthcheck, "METRICS_PORT", 9090):
             exit_code = _healthcheck.check("/livez")
-    assert exit_code == 1, (
-        f"Expected exit 1 on connection refused, got {exit_code}"
-    )
+    assert (
+        exit_code == 1
+    ), f"Expected exit 1 on connection refused, got {exit_code}"
 
 
 def test_exit_1_on_timeout() -> None:
@@ -147,9 +148,7 @@ def test_exit_1_on_timeout() -> None:
     with patch("urllib.request.urlopen", side_effect=error):
         with patch.object(_healthcheck, "METRICS_PORT", 9090):
             exit_code = _healthcheck.check("/livez")
-    assert exit_code == 1, (
-        f"Expected exit 1 on timeout, got {exit_code}"
-    )
+    assert exit_code == 1, f"Expected exit 1 on timeout, got {exit_code}"
 
 
 def test_exit_1_on_connection_failure_readiness() -> None:
@@ -163,6 +162,6 @@ def test_exit_1_on_connection_failure_readiness() -> None:
     with patch("urllib.request.urlopen", side_effect=error):
         with patch.object(_healthcheck, "METRICS_PORT", 9090):
             exit_code = _healthcheck.check("/readyz")
-    assert exit_code == 1, (
-        f"Expected exit 1 on connection failure, got {exit_code}"
-    )
+    assert (
+        exit_code == 1
+    ), f"Expected exit 1 on connection failure, got {exit_code}"

@@ -127,7 +127,9 @@ class TestFullServerLifecycle:
         time.sleep(0.2)
 
         # Should no longer be reachable
-        with pytest.raises((urllib.error.URLError, ConnectionRefusedError, OSError)):
+        with pytest.raises(
+            (urllib.error.URLError, ConnectionRefusedError, OSError)
+        ):
             urllib.request.urlopen(f"{base_url}/livez", timeout=1)
 
 
@@ -151,7 +153,9 @@ class TestMetricsEndpoint:
 
         # Should contain our defined metrics
         assert "cyhy_commander_work_cycle_duration_seconds" in content
-        assert "cyhy_commander_last_cycle_completed_timestamp_seconds" in content
+        assert (
+            "cyhy_commander_last_cycle_completed_timestamp_seconds" in content
+        )
         assert "cyhy_commander_last_db_success_timestamp_seconds" in content
 
     def test_metrics_content_type(self):
@@ -163,7 +167,9 @@ class TestMetricsEndpoint:
         content_type = resp.headers.get("Content-Type", "")
 
         # Prometheus client returns text/plain or the OpenMetrics type
-        assert "text/plain" in content_type or "text/openmetrics" in content_type
+        assert (
+            "text/plain" in content_type or "text/openmetrics" in content_type
+        )
 
     def test_metrics_reflects_recorded_values(self):
         """/metrics reflects values recorded via instrumentation helpers."""
@@ -179,11 +185,17 @@ class TestMetricsEndpoint:
         content = resp.read().decode("utf-8")
 
         # jobs_pushed_total for NETSCAN1 should be 2 (two inc calls)
-        assert 'cyhy_commander_jobs_pushed_total{stage="NETSCAN1"} 2.0' in content
+        assert (
+            'cyhy_commander_jobs_pushed_total{stage="NETSCAN1"} 2.0' in content
+        )
         # ips_pushed_total for NETSCAN1 should be 8 (5 + 3)
-        assert 'cyhy_commander_ips_pushed_total{stage="NETSCAN1"} 8.0' in content
+        assert (
+            'cyhy_commander_ips_pushed_total{stage="NETSCAN1"} 8.0' in content
+        )
         # last_cycle_completed_timestamp should be non-zero
-        assert "cyhy_commander_last_cycle_completed_timestamp_seconds" in content
+        assert (
+            "cyhy_commander_last_cycle_completed_timestamp_seconds" in content
+        )
 
 
 class TestHealthEndpointContentType:
@@ -255,7 +267,10 @@ class TestHealthEndpointContentType:
         # Use a very short threshold so we can trigger staleness
         with patch.dict(
             "os.environ",
-            {"CYHY_METRICS_PORT": str(port), "CYHY_LIVENESS_THRESHOLD_SECONDS": "1"},
+            {
+                "CYHY_METRICS_PORT": str(port),
+                "CYHY_LIVENESS_THRESHOLD_SECONDS": "1",
+            },
         ):
             metrics.start_server()
         time.sleep(0.1)
@@ -365,12 +380,14 @@ class TestConcurrentRequests:
                 endpoint = endpoints[i % len(endpoints)]
                 futures.append(executor.submit(_make_request, endpoint))
 
-            results = [f.result() for f in concurrent.futures.as_completed(futures)]
+            results = [
+                f.result() for f in concurrent.futures.as_completed(futures)
+            ]
 
         # All requests should succeed with 200
-        assert all(status == 200 for status in results), (
-            f"Expected all 200 responses, got: {results}"
-        )
+        assert all(
+            status == 200 for status in results
+        ), f"Expected all 200 responses, got: {results}"
 
     def test_concurrent_requests_during_metric_updates(self):
         """Concurrent requests succeed even while metrics are being updated."""

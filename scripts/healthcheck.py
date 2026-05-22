@@ -29,11 +29,11 @@ def check(endpoint: str) -> int:
     """GET http://localhost:{port}/{endpoint}, return 0 on 200, 1 otherwise."""
     url = f"http://localhost:{METRICS_PORT}{endpoint}"
     try:
-        response = urllib.request.urlopen(url, timeout=TIMEOUT)
+        response = urllib.request.urlopen(url, timeout=TIMEOUT)  # nosec B310
         if response.status == 200:
             return 0
         return 1
-    except (urllib.error.URLError, urllib.error.HTTPError, OSError):
+    except urllib.error.URLError, urllib.error.HTTPError, OSError:
         return 1
 
 

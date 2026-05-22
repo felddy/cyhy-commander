@@ -81,7 +81,9 @@ class TestAuthenticateWithToken:
     def test_uses_hmac_compare_digest(self) -> None:
         """Verify constant-time comparison is used (Requirement 7.4)."""
         with patch.object(metrics, "_bearer_token", "my-secret-token"):
-            with patch("cyhy_commander.metrics.hmac.compare_digest") as mock_compare:
+            with patch(
+                "cyhy_commander.metrics.hmac.compare_digest"
+            ) as mock_compare:
                 mock_compare.return_value = True
                 environ = {"HTTP_AUTHORIZATION": "Bearer my-secret-token"}
                 result = _authenticate(environ)
@@ -99,7 +101,9 @@ class TestGetBearerTokenWarning:
         import logging
 
         with caplog.at_level(logging.WARNING):
-            with patch.dict("os.environ", {"CYHY_METRICS_BEARER_TOKEN": "short"}):
+            with patch.dict(
+                "os.environ", {"CYHY_METRICS_BEARER_TOKEN": "short"}
+            ):
                 token = get_bearer_token()
                 assert token == "short"
                 assert "shorter than 8 characters" in caplog.text

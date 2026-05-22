@@ -146,7 +146,9 @@ class Commander:
                 )
             )
         else:
-            self.__nessus_sources.append(DirectoryJobSource(str(self.__work_dir / DROP_DIR)))
+            self.__nessus_sources.append(
+                DirectoryJobSource(str(self.__work_dir / DROP_DIR))
+            )
             self.__nmap_sources.append(
                 DatabaseJobSource(
                     str(NETSCAN1_JOB_FILE),
@@ -239,10 +241,14 @@ class Commander:
 
                 if exit_code == "0":
                     dest_dir = SUCCESS_DIR
-                    metrics.inc_jobs_pulled(_job_stage, ip_count=1, success=True)
+                    metrics.inc_jobs_pulled(
+                        _job_stage, ip_count=1, success=True
+                    )
                 else:
                     dest_dir = FAILED_DIR
-                    metrics.inc_jobs_pulled(_job_stage, ip_count=1, success=False)
+                    metrics.inc_jobs_pulled(
+                        _job_stage, ip_count=1, success=False
+                    )
                     metrics.inc_jobs_failed(_job_stage)
                     self.__logger.warning(
                         "%s had a non-zero exit code: %s",
@@ -306,7 +312,9 @@ class Commander:
             metrics.inc_host_errors(host)
             metrics.set_scanner_status(host, workgroup, False)
 
-    async def __running_job_count(self, host: str, workgroup: str) -> int | None:
+    async def __running_job_count(
+        self, host: str, workgroup: str
+    ) -> int | None:
         try:
             cp = await asyncio.to_thread(
                 self.__ssh.run, host, f"ls {shlex.quote(RUNNING_DIR)}"
@@ -331,7 +339,9 @@ class Commander:
             metrics.set_scanner_status(host, workgroup, False)
             return None
 
-    async def __push_job(self, host: str, job_path: str, workgroup: str) -> None:
+    async def __push_job(
+        self, host: str, job_path: str, workgroup: str
+    ) -> None:
         try:
             job_name = Path(job_path.rstrip("/")).name
             remote_job_dir = str(PurePosixPath(RUNNING_DIR) / job_name)

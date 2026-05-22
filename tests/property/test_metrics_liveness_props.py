@@ -75,7 +75,9 @@ def test_liveness_returns_200_when_cycle_not_stale(
     # Set up state: first cycle completed
     metrics._first_cycle_completed = True
     metrics._liveness_threshold = float(threshold)
-    metrics.last_cycle_completed_timestamp_seconds.set(float(last_cycle_timestamp))
+    metrics.last_cycle_completed_timestamp_seconds.set(
+        float(last_cycle_timestamp)
+    )
 
     # current_time such that elapsed < threshold
     current_time = float(last_cycle_timestamp + elapsed)
@@ -104,7 +106,9 @@ def test_liveness_returns_503_when_cycle_stale(
     # Set up state: first cycle completed
     metrics._first_cycle_completed = True
     metrics._liveness_threshold = float(threshold)
-    metrics.last_cycle_completed_timestamp_seconds.set(float(last_cycle_timestamp))
+    metrics.last_cycle_completed_timestamp_seconds.set(
+        float(last_cycle_timestamp)
+    )
 
     # current_time is at or beyond the threshold (elapsed >= threshold)
     current_time = float(last_cycle_timestamp + threshold + overshoot)

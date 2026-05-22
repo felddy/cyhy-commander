@@ -9,7 +9,6 @@ after all events are recorded.
 **Validates: Requirements 2.3, 2.4, 2.5**
 """
 
-import prometheus_client
 import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -37,7 +36,9 @@ def reset_prometheus_registry():
     stage=st.sampled_from(["NETSCAN1", "NETSCAN2", "PORTSCAN", "VULNSCAN"]),
     count=st.integers(min_value=1, max_value=1000),
 )
-def test_jobs_pushed_counter_increments_correctly(stage: str, count: int) -> None:
+def test_jobs_pushed_counter_increments_correctly(
+    stage: str, count: int
+) -> None:
     """Feature: observability-and-probes, Property 1: Counter metrics increment correctly.
 
     For any valid stage and N calls to inc_jobs_pushed, the
@@ -57,7 +58,9 @@ def test_jobs_pushed_counter_increments_correctly(stage: str, count: int) -> Non
     stage=st.sampled_from(["NETSCAN1", "NETSCAN2", "PORTSCAN", "VULNSCAN"]),
     count=st.integers(min_value=1, max_value=1000),
 )
-def test_jobs_pulled_counter_increments_correctly(stage: str, count: int) -> None:
+def test_jobs_pulled_counter_increments_correctly(
+    stage: str, count: int
+) -> None:
     """Feature: observability-and-probes, Property 1: Counter metrics increment correctly.
 
     For any valid stage and N calls to inc_jobs_pulled, the
@@ -77,7 +80,9 @@ def test_jobs_pulled_counter_increments_correctly(stage: str, count: int) -> Non
     stage=st.sampled_from(["NETSCAN1", "NETSCAN2", "PORTSCAN", "VULNSCAN"]),
     count=st.integers(min_value=1, max_value=1000),
 )
-def test_jobs_failed_counter_increments_correctly(stage: str, count: int) -> None:
+def test_jobs_failed_counter_increments_correctly(
+    stage: str, count: int
+) -> None:
     """Feature: observability-and-probes, Property 1: Counter metrics increment correctly.
 
     For any valid stage and N calls to inc_jobs_failed, the

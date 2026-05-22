@@ -80,7 +80,7 @@ The following metrics are exposed at `GET /metrics` in Prometheus exposition
 format:
 
 | Metric Name | Type | Labels | Description |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `cyhy_commander_work_cycle_duration_seconds` | Histogram | — | Wall-clock duration of each work cycle iteration |
 | `cyhy_commander_jobs_pushed_total` | Counter | `stage` | Jobs successfully pushed to scanner hosts |
 | `cyhy_commander_jobs_pulled_total` | Counter | `stage` | Completed jobs pulled from scanner hosts |
@@ -100,7 +100,7 @@ The `status` label takes values: `success`, `failure`.
 All health endpoints are served on the metrics port alongside `/metrics`.
 
 | Endpoint | Evaluates | Threshold | 200 Response | 503 Response |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `GET /livez` | `last_cycle_completed_timestamp_seconds` | `CYHY_LIVENESS_THRESHOLD_SECONDS` (default 300s) | `ok` — last cycle within threshold, or first cycle not yet completed (startup grace) | `work cycle stale` — elapsed time since last cycle ≥ threshold |
 | `GET /readyz` | `last_db_success_timestamp_seconds` | `CYHY_READINESS_THRESHOLD_SECONDS` (default 120s) | `ok` — last DB operation within threshold | `database connection stale` — elapsed time since last DB op ≥ threshold, or no DB op yet |
 | `GET /startupz` | `_first_cycle_completed` flag | — | `ok` — first work cycle has completed | `first cycle not completed` — still initializing |
@@ -111,7 +111,7 @@ body.
 ### Environment Variables ###
 
 | Variable | Purpose | Accepted Values | Default | Behavior When Unset |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `CYHY_METRICS_PORT` | TCP port for the metrics/health server | Integer in range [1024, 65535] | `9090` | Uses default port 9090 |
 | `CYHY_LIVENESS_THRESHOLD_SECONDS` | Maximum seconds since last completed work cycle before `/livez` returns 503 | Positive numeric value | `300` | Uses default of 300 seconds (5 minutes) |
 | `CYHY_READINESS_THRESHOLD_SECONDS` | Maximum seconds since last successful DB operation before `/readyz` returns 503 | Integer in range [1, 3600] | `120` | Uses default of 120 seconds (2 minutes) |

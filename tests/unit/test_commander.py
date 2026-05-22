@@ -519,9 +519,7 @@ class TestCliEntry:
                 "sys.argv",
                 ["cyhy-commander", "/tmp/workdir", "--debug"],  # nosec B108
             ),
-            patch(
-                "cyhy_commander.commander._async_main"
-            ) as mock_async_main,
+            patch("cyhy_commander.commander._async_main") as mock_async_main,
             patch("cyhy_commander.commander.asyncio.run") as mock_run,
         ):
             cli_entry()
