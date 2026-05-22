@@ -63,7 +63,7 @@ RUN apt-get update \
     && apt-get upgrade --no-install-recommends -y \
     && apt-get install --no-install-recommends --no-install-suggests -y \
        openssh-client=1:10.0p1-7+deb13u4 \
-       rsync=3.4.1+ds1-5+deb13u2 \
+       rsync=3.4.1+ds1-5+deb13u3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Python environment settings for container runtime
