@@ -107,13 +107,34 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Pull built image
+      - name: Resolve image reference and pull
+        env:
+          IMAGE_NAME: ${{ needs.config.outputs.image_name }}
+          PLATFORM: ${{ matrix.platform }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          IMAGE="ghcr.io/${{ needs.config.outputs.image_name }}"
-          TAG="${{ needs.build.outputs.image-version }}"
-          docker pull "${IMAGE}:${TAG}" \
-            --platform ${{ matrix.platform }}
-          docker tag "${IMAGE}:${TAG}" test-image:latest
+          IMAGE_SLUG=$(echo "${IMAGE_NAME}" | tr '/' '-')
+          PLATFORM_SLUG=$(echo "${PLATFORM}" | tr '/' '-')
+          ARTIFACT_NAME="digests-${IMAGE_SLUG}-${PLATFORM_SLUG}"
+          ARTIFACT_DIR="/tmp/digests/${ARTIFACT_NAME}"
+
+          echo "Downloading artifact: ${ARTIFACT_NAME}"
+          mkdir -p /tmp/digests
+          gh run download "${{ github.run_id }}" \
+            --repo "${{ github.repository }}" \
+            --name "${ARTIFACT_NAME}" \
+            --dir "${ARTIFACT_DIR}"
+
+          HEX=$(ls "${ARTIFACT_DIR}" | grep -E '^[a-f0-9]{64}$' || true)
+          if [[ -z "${HEX}" ]]; then
+            echo "::error::No valid sha256 digest file found in ${ARTIFACT_DIR}"
+            exit 1
+          fi
+
+          IMAGE_REF="ghcr.io/${IMAGE_NAME}@sha256:${HEX}"
+          echo "Pulling ${IMAGE_REF} (platform: ${PLATFORM})"
+          docker pull "${IMAGE_REF}"
+          docker tag "${IMAGE_REF}" test-image:latest
       - name: Install container-structure-test
         run: |
           CST_BASE="https://github.com/GoogleContainerTools"
