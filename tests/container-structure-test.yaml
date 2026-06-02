@@ -11,8 +11,8 @@ schemaVersion: "2.0.0"
 
 metadataTest:
   labels:
-    - key: "org.opencontainers.image.authors"
-      value: "github@cisa.dhs.gov"
+    # - key: "org.opencontainers.image.authors"
+    #   value: "github@cisa.dhs.gov"
     - key: "org.opencontainers.image.vendor"
       value: "Cybersecurity and Infrastructure Security Agency"
     - key: "org.opencontainers.image.title"
