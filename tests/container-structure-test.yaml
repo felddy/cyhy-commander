@@ -22,7 +22,10 @@ metadataTest:
   entrypoint: ["cyhy-commander"]
   workdir: "/home/cisa"
   user: "cisa:cisa"
-  env:
+  envVars:
+    - key: "PATH"
+      # yamllint disable-line rule:line-length
+      value: "/home/cisa/.venv/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     - key: "VIRTUAL_ENV"
       value: "/home/cisa/.venv"
     - key: "PYTHONDONTWRITEBYTECODE"
@@ -30,28 +33,15 @@ metadataTest:
     - key: "PYTHONUNBUFFERED"
       value: "1"
 
-envVars:
-  - key: "PATH"
-    # yamllint disable-line rule:line-length
-    value: "/home/cisa/.venv/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-  - key: "VIRTUAL_ENV"
-    value: "/home/cisa/.venv"
-  - key: "PYTHONDONTWRITEBYTECODE"
-    value: "1"
-  - key: "PYTHONUNBUFFERED"
-    value: "1"
-
 fileExistenceTests:
   # Virtual environment
   - name: "Virtual environment directory exists"
     path: "/home/cisa/.venv"
     shouldExist: true
-    isDirectory: true
 
   - name: "Virtual environment bin directory exists"
     path: "/home/cisa/.venv/bin"
     shouldExist: true
-    isDirectory: true
 
   - name: "Python3 symlink exists in venv"
     path: "/home/cisa/.venv/bin/python3"
@@ -76,7 +66,6 @@ fileExistenceTests:
   - name: "Application package directory exists"
     path: "/home/cisa/cyhy_commander"
     shouldExist: true
-    isDirectory: true
 
   - name: "Application __init__.py exists"
     path: "/home/cisa/cyhy_commander/__init__.py"
