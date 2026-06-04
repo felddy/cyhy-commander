@@ -66,6 +66,10 @@ RUN apt-get update \
        rsync=3.4.1+ds1-5+deb13u3 \
     && rm -rf /var/lib/apt/lists/*
 
+# Remove pip from system Python to reduce attack surface and prevent ad-hoc installs
+RUN pip --no-cache-dir uninstall --yes pip \
+    && rm -f /usr/local/bin/pip /usr/local/bin/pip3 /usr/local/bin/pip3.*
+
 # Python environment settings for container runtime
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
