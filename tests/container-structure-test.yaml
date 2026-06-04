@@ -13,12 +13,12 @@ metadataTest:
   labels:
     # - key: "org.opencontainers.image.authors"
     #   value: "github@cisa.dhs.gov"
-    - key: "org.opencontainers.image.vendor"
-      value: "Cybersecurity and Infrastructure Security Agency"
-    - key: "org.opencontainers.image.title"
-      value: "cyhy-commander"
-    - key: "org.opencontainers.image.source"
-      value: "https://github.com/cisagov/cyhy-commander"
+    # - key: "org.opencontainers.image.vendor"
+    #   value: "Cybersecurity and Infrastructure Security Agency"
+    # - key: "org.opencontainers.image.title"
+    #   value: "cyhy-commander"
+    # - key: "org.opencontainers.image.source"
+    #   value: "https://github.com/cisagov/cyhy-commander"
   entrypoint: ["cyhy-commander"]
   workdir: "/home/cisa"
   user: "cisa:cisa"
